@@ -425,6 +425,7 @@ $('fbWipe').onclick=async()=>{
   try{await fbReq('','DELETE');FB.n=0;fbSet('Đã kết nối','on','Đã xóa dữ liệu trên cloud')}catch(e){fbErr(e)}
 };
 try{const f=JSON.parse(localStorage.getItem('pg_fb'));if(f){$('fbUrl').value=f.u||'';$('fbAuto').checked=f.a!==false;$('fbRead').checked=f.r!==false;if(f.u)fbConnect(true)}}catch(e){}
+if(!$('fbUrl').value&&window.PG_CONFIG&&PG_CONFIG.firebaseUrl){$('fbUrl').value=PG_CONFIG.firebaseUrl;fbConnect(true)}
 if(!storeOK)$('storeWarn').style.display='block';
 if(session)showRec();
 renderLog();renderSessions();update(150);autoReady=true;rdRender();
