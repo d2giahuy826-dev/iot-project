@@ -6,87 +6,7 @@
 <title>ParkGuard – Nhật ký đỗ xe an toàn | IOT102 Nhóm 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#eef1f4;--panel:#fff;--ink:#14202b;--muted:#5d6b78;--line:#d6dce2;--green:#1f9d63;--amber:#e39a0b;--red:#d6342c;--navy:#14202b;--blue:#1d6fb8}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.5 'Barlow','Segoe UI',Arial,sans-serif}
-.num{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif}
-button{font:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-/* header */
-.top{background:var(--navy);color:#fff}
-.top-in{max-width:1180px;margin:auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand svg{width:34px;height:34px}
-.brand b{font-size:24px;font-weight:700;letter-spacing:.3px}
-.brand span{color:#9db0c1;font-size:14px;border-left:1px solid #34475a;padding-left:12px}
-nav{display:flex;gap:26px;font-size:15px}
-nav a{color:#c8d4de;text-decoration:none;padding:21px 0;border-bottom:3px solid transparent}
-nav a:hover{color:#fff;border-color:var(--blue)}
-@media(max-width:760px){nav,.brand span{display:none}}
-main{max-width:1180px;margin:auto;padding:28px 24px 48px}
-h2{font-size:22px;font-weight:600;margin-bottom:4px}
-.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
-/* monitor */
-.monitor{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:28px;margin-bottom:28px}
-@media(max-width:900px){.monitor{grid-template-columns:1fr}}
-.scene{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
-.scene svg{width:100%;height:auto;display:block}
-#car{transition:transform .12s linear}
-.read{display:flex;flex-direction:column;gap:20px}
-.hero-read{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-left:10px solid var(--green);transition:border-color .2s}
-.hero-read .val{font-size:112px;line-height:.9;font-weight:700}
-.hero-read .val small{font-size:30px;font-weight:500;color:var(--muted);margin-left:6px}
-.state{font-size:30px;font-weight:700;margin-top:10px}
-.lamps{display:flex;flex-direction:column;gap:10px;background:var(--navy);padding:12px;border-radius:30px}
-.lamp{width:28px;height:28px;border-radius:50%;background:#2a3a49}
-.lamp.g.on{background:#2ee08c;box-shadow:0 0 16px #2ee08c}
-.lamp.y.on{background:#ffc233;box-shadow:0 0 16px #ffc233}
-.lamp.r.on{background:#ff544a;box-shadow:0 0 18px #ff544a}
-.chart{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
-.chart svg{width:100%;height:auto;display:block}
-.ctl{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
-.ctl label{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:8px}
-.ctl label b{color:var(--ink)}
-input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer}
-.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.btn{padding:10px 16px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:500}
-.btn:hover{background:#f3f6f8}
-.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn.pri:hover{background:#175a96}
-.btn.stop{background:var(--red);border-color:var(--red);color:#fff}
-.btn.ok{border-color:var(--green);color:var(--green)}
-/* session + stats */
-.session{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:var(--navy);color:#fff;border-radius:8px 8px 0 0;padding:14px 22px}
-.rec{display:inline-block;width:11px;height:11px;border-radius:50%;background:#6c7d8c;margin-right:10px}
-.rec.on{background:#ff544a;box-shadow:0 0 10px #ff544a}
-.verdict{font-weight:700;padding:3px 14px;border-radius:4px;background:#2a3a49;color:#fff}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;margin-bottom:28px}
-.stats div{padding:20px 22px;border-right:1px solid var(--line)}
-.stats div:last-child{border:0}
-.stats .n{font-size:52px;font-weight:700;line-height:1}
-.stats .t{color:var(--muted);font-size:14px;margin-top:4px}
-@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.stats div:nth-child(2){border-right:0}.stats div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
-/* log */
-.logbox{background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:28px}
-.loghead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.loghead .row{margin:0}
-.tablewrap{max-height:340px;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:15px}
-th,td{padding:12px 22px;text-align:left;border-bottom:1px solid #e6eaee;white-space:nowrap}
-th{position:sticky;top:0;background:#f7f9fa;color:var(--muted);font-weight:600;font-size:14px}
-.tag{display:inline-block;padding:2px 12px;border-radius:4px;font-weight:600;font-size:14px;color:#fff}
-.tag.r{background:var(--red)}.tag.y{background:var(--amber)}
-.empty{padding:34px 22px;text-align:center;color:var(--muted)}
-/* about */
-.about{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-@media(max-width:800px){.about{grid-template-columns:1fr}}
-.about section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px}
-.about table td,.about table th{padding:10px 0}
-.sw{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:10px;vertical-align:-2px}
-footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-size:14px}
-.warnbar{display:none;background:#fff3d6;border:1px solid var(--amber);border-radius:6px;padding:12px 16px;margin-bottom:20px;font-size:15px}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top"><div class="top-in">
@@ -94,14 +14,14 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
     <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#1d6fb8"/><rect x="11" y="9" width="12" height="17" rx="4" fill="#fff"/><path d="M7 7a14 14 0 0 1 20 0M10 4a9 9 0 0 1 14 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/></svg>
     <b>ParkGuard</b><span>Nhật ký đỗ xe an toàn</span>
   </div>
-  <nav><a href="#giamsat">Giám sát</a><a href="#thongke">Thống kê</a><a href="#nhatky">Nhật ký</a><a href="#duan">Về dự án</a></nav>
+  <nav><a href="#giamsat">Giám sát</a><a href="#thongke">Thống kê</a><a href="#nhatky">Nhật ký</a><a href="#lichsu">Lịch sử đo</a><a href="#luutru">Lưu trữ</a><a href="#duan">Về dự án</a></nav>
 </div></header>
 
 <main>
 <div class="warnbar" id="storeWarn"><b>Trình duyệt đang chặn lưu trữ nên nhật ký sẽ mất khi đóng trang.</b> Hãy mở file index.html trực tiếp bằng Chrome hoặc Edge (không mở trong khung xem trước), và dùng nút “Sao lưu” để giữ dữ liệu.</div>
 <section id="giamsat">
   <h2>Giám sát thời gian thực</h2>
-  <p class="sub">Khoảng cách từ đuôi xe đến vật cản phía sau, đo bằng cảm biến siêu âm HC-SR04.</p>
+  <p class="sub">Khoảng cách từ đuôi xe đến vật cản phía sau, đo bằng cảm biến siêu âm HC-SR04 (hoặc bằng camera laptop ở chế độ thử nghiệm).</p>
   <div class="monitor">
     <div class="scene" aria-label="Sơ đồ nhìn từ trên xuống">
       <svg viewBox="0 0 360 660" role="img" aria-label="Xe lùi về phía tường">
@@ -130,6 +50,7 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
     <div class="read">
       <div class="hero-read" id="heroRead">
         <div>
+          <div class="sub" id="srcLbl" style="margin:0 0 6px">Khoảng cách từ đuôi xe đến vật cản</div>
           <div class="val num"><span id="dist">150</span><small>cm</small></div>
           <div class="state num" id="stateTxt">An toàn</div>
         </div>
@@ -154,6 +75,34 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
           <button class="btn" id="btnAudio">Còi: bật</button>
         </div>
       </div>
+      <div class="ctl">
+        <label><span>Đo bằng camera laptop (thử nghiệm)<span class="camsw" id="camSw" title="Màu vật cản đang theo dõi"></span></span><b id="camState">Tắt</b></label>
+        <div class="row" style="margin:0 0 12px"><button class="btn pri" id="mAuto">Tự động nhận diện (AI)</button><button class="btn" id="mColor">Chọn theo màu</button></div>
+        <div class="camread"><div class="camval num"><span id="camDist">---</span><small>cm</small></div><div class="camdet" id="camDet">Chưa có dữ liệu</div></div>
+        <div class="camwrap" id="camWrap"><video id="camVideo" autoplay muted playsinline></video><canvas id="camOv"></canvas><div class="camph" id="camPh">Bấm “Bật camera” để bắt đầu</div></div>
+        <ol class="camsteps onlyAuto">
+          <li>Bật camera và đưa vật vào khung hình. Hệ thống tự nhận diện và đánh dấu vật (người, ô tô, xe máy, chai, điện thoại…). Khi có nhiều vật, vật lớn nhất trong khung được chọn.</li>
+          <li>Chiều rộng thật được lấy theo loại vật và hiện ở ô “Rộng thật” (bạn có thể sửa nếu vật của bạn khác).</li>
+          <li>Để chính xác hơn, đặt vật ở khoảng cách đã đo bằng thước, nhập số đó rồi bấm “Hiệu chuẩn”. Hệ thống sẽ tự chỉnh góc nhìn camera.</li>
+        </ol>
+        <ol class="camsteps onlyColor">
+          <li>Bật camera, bấm vào vật cần đo trên hình để lấy màu (nên dùng vật màu rực: xanh, cam, hồng).</li>
+          <li>Chọn 1 trong 2 cách: nhập chiều rộng thật của vật rồi bấm “Tự đo” (nhanh, không cần thước), hoặc đặt vật ở khoảng cách đã biết rồi bấm “Hiệu chuẩn” (chính xác hơn).</li>
+          <li>Tiến hoặc lùi vật: khoảng cách từ vật đến camera hiện ở số lớn, trên sơ đồ, đèn và nhật ký.</li>
+        </ol>
+        <div class="row">
+          <button class="btn" id="btnCam">Bật camera</button>
+          <span class="calbox"><input type="number" id="calD" value="100" min="10" max="250" aria-label="Khoảng cách chuẩn (cm)"> cm <button class="btn" id="btnCal">Hiệu chuẩn</button></span>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <span class="calbox">Rộng thật của vật <input type="number" id="objW" value="10" min="1" max="200" aria-label="Chiều rộng thật của vật (cm)"> cm</span>
+          <span class="calbox">Góc nhìn camera <input type="number" id="fov" value="70" min="30" max="120" aria-label="Góc nhìn ngang (độ)"> °</span>
+          <button class="btn pri onlyColor" id="btnObj">Tự đo</button>
+        </div>
+        <label class="onlyColor" style="margin-top:16px"><span>Độ nhạy màu (tăng nếu vật bị mất, giảm nếu bắt nhầm)</span><b id="tolLabel">18</b></label>
+        <input class="onlyColor" type="range" id="tol" min="6" max="40" value="18" aria-label="Độ nhạy màu">
+        <div class="sub" id="camMsg" style="margin:12px 0 0">Camera đang tắt. Khi bật camera, thanh trượt mô phỏng sẽ bị khóa.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -163,7 +112,7 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
     <div><span class="rec" id="rec"></span><b id="sessText">Chưa có phiên đỗ xe</b> <span id="sessTime" style="color:#9db0c1;margin-left:8px"></span></div>
     <div style="display:flex;gap:14px;align-items:center">
       <span>Đánh giá: <span class="verdict" id="verdict">Chưa có</span></span>
-      <button class="btn pri" id="btnSession">Bắt đầu phiên đỗ xe</button>
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#c8d4de"><input type="checkbox" id="autoSess" checked> Tự động bắt đầu/kết thúc phiên</label><button class="btn pri" id="btnSession">Bắt đầu phiên đỗ xe</button>
     </div>
   </div>
   <div class="stats">
@@ -185,12 +134,57 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
   </div>
 </section>
 
+<section id="lichsu" class="logbox">
+  <div class="loghead">
+    <div><h2>Lịch sử cảm biến</h2><div class="sub" style="margin:0" id="rdSum">Mỗi giây ghi một lần đọc trong phiên đỗ xe và tự lưu vào trình duyệt.</div></div>
+    <div class="row"><select id="rdSel" class="btn" aria-label="Chọn phiên"></select><button class="btn" id="rdCsv">Xuất CSV</button><button class="btn" id="rdClear">Xóa lịch sử đo</button></div>
+  </div>
+  <div style="padding:16px 22px 4px">
+    <svg viewBox="0 0 600 150" style="width:100%;height:auto;display:block" role="img" aria-label="Biểu đồ lịch sử khoảng cách">
+      <rect x="0" y="105" width="600" height="45" fill="#d6342c" opacity=".12"/><rect x="0" y="60" width="600" height="45" fill="#e39a0b" opacity=".14"/><rect x="0" y="0" width="600" height="60" fill="#1f9d63" opacity=".1"/>
+      <polyline id="rdLine" fill="none" stroke="#14202b" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="tablewrap">
+    <table><thead><tr><th>Phiên</th><th>Thời điểm</th><th>Khoảng cách</th><th>Mức độ</th></tr></thead><tbody id="rdBody"></tbody></table>
+    <div class="empty" id="rdEmpty">Chưa có lần đọc nào. Khi xe tiến vào vùng đo (dưới 200 cm), phiên sẽ tự bắt đầu và các lần đọc được lưu lại.</div>
+  </div>
+</section>
+
 <section id="phien" class="logbox">
   <div class="loghead"><div><h2>Lịch sử các phiên đỗ xe</h2><div class="sub" style="margin:0" id="sesTotal"></div></div></div>
   <div class="tablewrap">
     <table><thead><tr><th>Phiên</th><th>Bắt đầu</th><th>Thời lượng</th><th>Nguy hiểm</th><th>Cảnh báo</th><th>Gần nhất</th><th>Đánh giá</th></tr></thead><tbody id="sesBody"></tbody></table>
     <div class="empty" id="sesEmpty">Chưa có phiên nào kết thúc. Kết quả mỗi phiên sẽ được lưu lại ở đây, kể cả khi tắt trang.</div>
   </div>
+</section>
+
+<section id="luutru" class="cloud">
+  <h2>Lưu trữ dữ liệu (Firebase)</h2>
+  <p class="sub">Nhật ký, phiên đỗ xe và các lần đọc cảm biến được lưu lên Firebase Realtime Database để không mất khi đóng trang và xem được từ máy khác. Dữ liệu vẫn được lưu trên trình duyệt như cũ.</p>
+  <div><span class="dot" id="fbDot"></span><b id="fbStat">Chưa kết nối</b> <span class="sub" id="fbInfo" style="margin:0 0 0 8px"></span></div>
+  <div class="fld">
+    <input type="url" id="fbUrl" placeholder="https://ten-du-an-default-rtdb.firebaseio.com" aria-label="Địa chỉ Firebase Realtime Database">
+    <button class="btn pri" id="fbConnect">Kết nối &amp; kiểm tra</button>
+    <button class="btn" id="fbOff">Ngắt</button>
+  </div>
+  <div class="row" style="margin-top:0">
+    <label class="chk"><input type="checkbox" id="fbAuto" checked> Tự động lưu khi có sự kiện mới</label>
+    <label class="chk"><input type="checkbox" id="fbRead" checked> Lưu cả lần đọc cảm biến (2 giây/lần, chỉ trong phiên)</label>
+  </div>
+  <div class="row">
+    <button class="btn" id="fbPush">Đẩy toàn bộ lên cloud</button>
+    <button class="btn" id="fbPull">Tải từ cloud về</button>
+    <button class="btn" id="fbWipe">Xóa dữ liệu trên cloud</button>
+  </div>
+  <details><summary>Cách tạo Firebase (3 phút)</summary>
+    <ol>
+      <li>Vào <code>console.firebase.google.com</code>, tạo project, chọn Build → Realtime Database → Create Database.</li>
+      <li>Ở tab Rules, dán <code>{"rules":{".read":true,".write":true}}</code> rồi Publish (chế độ thử nghiệm, ai có link đều ghi được, chỉ nên dùng khi demo).</li>
+      <li>Sao chép địa chỉ ở đầu tab Data (dạng <code>https://…firebaseio.com</code>) và dán vào ô phía trên.</li>
+    </ol>
+    <p style="margin-top:10px">Cấu trúc lưu: <code>parkguard/readings</code> (distance, level, ts), <code>parkguard/events</code>, <code>parkguard/sessions</code>.</p>
+  </details>
 </section>
 
 <section id="duan" class="about">
@@ -217,133 +211,6 @@ footer{background:var(--navy);color:#9db0c1;text-align:center;padding:22px;font-
 </main>
 <footer>ParkGuard · IOT102 – Nhóm 3 · Arduino Uno + HC-SR04</footer>
 
-<script>
-const $=id=>document.getElementById(id);
-const KEY='parkguard_log_v2';
-let audioOn=true,ac=null,blink=null,session=null,sessionCount=0,log=[],zone='out',ev=null,counts={d:0,w:0},minAll=null,hist=[];
-let sessions=[],storeOK=true;
-try{localStorage.setItem('pg_t','1');localStorage.removeItem('pg_t')}catch(e){storeOK=false}
-function apply(s){log=s.log||[];sessionCount=s.sc||0;sessions=s.sessions||[];const c=s.cur;if(c&&c.session){session=c.session;counts=c.counts;minAll=c.minAll}}
-try{const s=JSON.parse(localStorage.getItem(KEY));if(s)apply(s)}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({log,sc:sessionCount,sessions,cur:session?{session,counts,minAll}:null}))}catch(e){storeOK=false;$('storeWarn').style.display='block'}};
-const zoneOf=d=>d>200?'out':d>=100?'safe':d>=50?'warn':'danger';
-const fT=t=>new Date(t).toLocaleString('vi-VN'),fD=ms=>(ms/1000).toFixed(1)+' s';
-const UI={safe:['An toàn','#1f9d63'],warn:['Cảnh báo','#e39a0b'],danger:['Nguy hiểm!','#d6342c'],out:['Ngoài vùng đo','#8a97a3']};
-
-function beep(){if(!audioOn)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=1600;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.05);o.start();o.stop(ac.currentTime+.05)}catch(e){}}
-
-/* Ghi sự kiện: chỉ đếm khi VỪA VÀO vùng, không đếm mỗi lần đọc */
-function closeEv(){if(!ev)return;log.unshift({t:ev.start,lv:ev.lv,min:ev.min,dur:Date.now()-ev.start,s:session?session.id:0});ev=null;save();renderLog()}
-function track(d,z){
-  if(!session)return;
-  if(z!==zone){closeEv();if(z==='warn'||z==='danger'){ev={lv:z,start:Date.now(),min:d};z==='danger'?counts.d++:counts.w++;save()}}
-  if(ev&&d<ev.min)ev.min=d;
-  let ch=false;
-  if(d<=250&&(minAll===null||d<minAll)){minAll=d;ch=true}
-  renderStats();if(ch)save();
-}
-function verdict(d=counts.d,w=counts.w){
-  if(d===0&&w<=2)return['Tốt','#1f9d63'];
-  if(d<=2)return['Cần cẩn thận','#e39a0b'];
-  return['Nguy hiểm','#d6342c'];
-}
-function showRec(){$('rec').classList.add('on');$('sessText').textContent='Đang ghi phiên #'+session.id;$('btnSession').textContent='Kết thúc phiên';$('btnSession').className='btn stop'}
-function renderSessions(){
-  const b=$('sesBody');b.innerHTML='';$('sesEmpty').style.display=sessions.length?'none':'block';let td=0,tw=0;
-  sessions.forEach(x=>{td+=x.d;tw+=x.w;const[v,c]=verdict(x.d,x.w);const tr=document.createElement('tr');
-    tr.innerHTML=`<td>#${x.id}</td><td>${fT(x.start)}</td><td>${fD(x.end-x.start)}</td><td>${x.d}</td><td>${x.w}</td><td>${x.min===null?'---':x.min+' cm'}</td><td><span class="tag" style="background:${c}">${v}</span></td>`;b.appendChild(tr)});
-  $('sesTotal').textContent=sessions.length?`Tổng cộng ${td} lần nguy hiểm và ${tw} lần cảnh báo trong ${sessions.length} phiên`:'';
-}
-function renderStats(){
-  $('sDanger').textContent=counts.d;$('sWarn').textContent=counts.w;$('sMin').textContent=minAll===null?'---':minAll;
-  $('sTotal').textContent=log.length+(ev?1:0);
-  const[v,c]=session?verdict():['Chưa có','#2a3a49'];$('verdict').textContent=v;$('verdict').style.background=c;
-}
-function renderLog(){
-  const b=$('logBody');b.innerHTML='';$('emptyMsg').style.display=log.length?'none':'block';
-  log.forEach(l=>{const tr=document.createElement('tr');
-    tr.innerHTML=`<td>#${l.s}</td><td>${fT(l.t)}</td><td><span class="tag ${l.lv==='danger'?'r':'y'}">${l.lv==='danger'?'Nguy hiểm':'Cảnh báo'}</span></td><td>${l.min} cm</td><td>${fD(l.dur)}</td>`;b.appendChild(tr)});
-  renderStats();
-}
-
-/* Vẽ sơ đồ + biểu đồ */
-const Y0=60,K=1.7;
-function drawScene(d){
-  const c=Math.min(d,250),y=Y0+c*K;
-  $('car').style.transform=`translateY(${y}px)`;
-  const top=Y0-y; // điểm tường so với gốc xe (âm)
-  $('beam').setAttribute('points',`170,0 190,0 232,${top} 128,${top}`);
-  $('beamLine').setAttribute('y1',0);$('beamLine').setAttribute('y2',top);
-  $('beamTxt').setAttribute('y',top/2+8);$('beamTxt').textContent=d>200?'':d+' cm';
-}
-function drawChart(){
-  const n=80,pts=hist.map((v,i)=>`${(i/(n-1))*600},${150-Math.min(v,250)/250*150}`).join(' ');
-  $('line').setAttribute('points',pts);
-}
-function update(d){
-  const z=zoneOf(d);track(d,z);
-  hist.push(d);if(hist.length>80)hist.shift();
-  $('dist').textContent=d>200?'---':d;drawScene(d);drawChart();
-  if(z!==zone||!$('stateTxt').dataset.i){
-    const[t,col]=UI[z];$('stateTxt').textContent=t;$('stateTxt').style.color=col;$('stateTxt').dataset.i=1;
-    $('heroRead').style.borderLeftColor=col;
-    $('lg').classList.toggle('on',z==='safe');$('ly').classList.toggle('on',z==='warn');$('lr').classList.remove('on');
-    if(blink){clearInterval(blink);blink=null}
-    if(z==='danger'){let s=false;blink=setInterval(()=>{s=!s;$('lr').classList.toggle('on',s);if(s)beep()},80)}
-  }
-  zone=z;
-}
-
-/* Phiên đỗ xe */
-function startSession(){
-  sessionCount++;session={id:sessionCount,start:Date.now()};counts={d:0,w:0};minAll=null;ev=null;zone='out';save();
-  $('rec').classList.add('on');$('sessText').textContent='Đang ghi phiên #'+session.id;
-  $('btnSession').textContent='Kết thúc phiên';$('btnSession').className='btn stop';
-  update(+$('slider').value);
-}
-function endSession(){
-  closeEv();sessions.unshift({id:session.id,start:session.start,end:Date.now(),d:counts.d,w:counts.w,min:minAll});$('rec').classList.remove('on');
-  $('sessText').textContent='Đã kết thúc phiên #'+session.id;
-  $('sessTime').textContent=`${counts.d} lần nguy hiểm · ${counts.w} lần cảnh báo`;
-  $('btnSession').textContent='Bắt đầu phiên đỗ xe';$('btnSession').className='btn pri';
-  renderStats();session=null;save();renderSessions();
-}
-setInterval(()=>{if(session)$('sessTime').textContent='('+fD(Date.now()-session.start)+')'},500);
-$('btnSession').onclick=()=>session?endSession():startSession();
-
-/* Điều khiển */
-function setDist(d){$('slider').value=d;$('sliderLabel').textContent=d+' cm';update(d)}
-$('slider').addEventListener('input',e=>setDist(+e.target.value));
-$('btnAudio').onclick=()=>{audioOn=!audioOn;$('btnAudio').textContent='Còi: '+(audioOn?'bật':'tắt')};
-$('btnClear').onclick=()=>{if(!confirm('Xóa toàn bộ nhật ký?'))return;log=[];sessions=[];ev=null;counts={d:0,w:0};minAll=null;save();renderLog();renderSessions()};
-$('btnCsv').onclick=()=>{
-  const rows=[['Phiên','Thời điểm','Mức độ','Gần nhất (cm)','Kéo dài (s)'],...log.map(l=>[l.s,fT(l.t),l.lv==='danger'?'Nguy hiểm':'Cảnh báo',l.min,(l.dur/1000).toFixed(1)])];
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));a.download='nhat-ky-do-xe.csv';a.click();
-};
-let auto=null;
-function stopAuto(){clearInterval(auto);auto=null;$('btnAuto').textContent='Chạy mô phỏng lùi xe'}
-$('btnAuto').onclick=()=>{
-  if(auto){stopAuto();return}
-  if(!session)startSession();
-  let d=200,dir=-1;$('btnAuto').textContent='Dừng mô phỏng';
-  auto=setInterval(()=>{d+=dir*3;if(d<=25)dir=1;setDist(d);if(dir===1&&d>=120)stopAuto()},60);
-};
-$('btnConnect').onclick=async()=>{
-  if(!('serial' in navigator)){alert('Hãy dùng Google Chrome hoặc Microsoft Edge (Web Serial).');return}
-  try{
-    const port=await navigator.serial.requestPort();await port.open({baudRate:9600});
-    $('btnConnect').textContent='Đã kết nối Arduino';$('btnConnect').className='btn ok';
-    const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable);const rd=dec.readable.getReader();let buf='';
-    while(true){const{value,done}=await rd.read();if(done)break;buf+=value;const ls=buf.split('\n');buf=ls.pop();
-      for(const l of ls){const m=l.match(/Distance:\s*([0-9.]+)/i);if(m)setDist(Math.min(250,Math.round(parseFloat(m[1]))))}}
-  }catch(e){console.error(e);alert('Không kết nối được: '+e.message)}
-};
-$('btnBackup').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({log,sc:sessionCount,sessions,cur:null})],{type:'application/json'}));a.download='parkguard-backup.json';a.click()};
-$('btnRestore').onclick=()=>$('fileRestore').click();
-$('fileRestore').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{apply(JSON.parse(t));save();renderLog();renderSessions();if(session)showRec()}catch(x){alert('File không hợp lệ')}})};
-if(!storeOK)$('storeWarn').style.display='block';
-if(session)showRec();
-renderLog();renderSessions();update(150);
-</script>
+<script src="app.js"></script>
 </body>
 </html>
