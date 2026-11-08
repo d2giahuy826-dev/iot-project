@@ -1,0 +1,2 @@
+USE CarReverseDB;
+SELECT TOP 20 * FROM ParkingLogs ORDER BY Id DESC;

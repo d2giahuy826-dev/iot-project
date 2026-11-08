@@ -1,0 +1,13 @@
+{
+  "useMSSQL": true,
+  "server": "localhost",
+  "database": "CarReverseDB",
+  "user": "sa",
+  "password": "123giahuy",
+  "port": 1433,
+  "options": {
+    "encrypt": false,
+    "trustServerCertificate": true
+  }
+}
+

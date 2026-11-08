@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Camera Sau - Hệ Thống Lùi Xe</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/camera.css">
+</head>
+<body>
+
+  <div class="camera-container">
+    <!-- Header -->
+    <div class="header-bar">
+      <div class="header-title">
+        <span class="car-icon">🚗</span>
+        <span>CAMERA LÙI (ĐIỆN THOẠI)</span>
+      </div>
+      <a href="/" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">🏠 Trang chủ</a>
+    </div>
+
+    <!-- Khung xem trước Camera -->
+    <div class="video-preview-wrapper">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <div class="video-tag" id="videoTag">SẴN SÀNG</div>
+
+      <!-- Màn hình chờ khi chưa bật camera -->
+      <div class="video-overlay-msg" id="videoOverlayMsg">
+        <div style="font-size: 40px;">📷</div>
+        <div style="font-size: 16px; font-weight: 600;">Camera chưa kích hoạt</div>
+        <div style="font-size: 13px; color: var(--text-muted); max-width: 280px;">
+          Bấm nút <strong>"Bật Camera Sau"</strong> phía dưới để bắt đầu phát video sang laptop màn hình lùi.
+        </div>
+      </div>
+    </div>
+
+    <!-- Bảng điều khiển & Trạng thái -->
+    <div class="control-card">
+      <div class="status-row">
+        <span class="status-label">Kết nối Server:</span>
+        <span id="wsStatusBadge" class="badge badge-warning">Đang kết nối...</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-label">Truyền hình WebRTC:</span>
+        <span id="rtcStatusBadge" class="badge badge-warning">Chờ kết nối...</span>
+      </div>
+
+      <div class="setting-row">
+        <label for="resolutionSelect" class="status-label">Độ phân giải video:</label>
+        <select id="resolutionSelect">
+          <option value="720p" selected>HD (720p - Sắc nét)</option>
+          <option value="480p">SD (480p - Tiết kiệm mạng)</option>
+        </select>
+      </div>
+
+      <div class="action-buttons">
+        <button id="startBtn" class="btn btn-primary">
+          <span>📹</span> Bật Camera Sau
+        </button>
+        <button id="stopBtn" class="btn btn-danger" style="display: none;">
+          <span>⏹</span> Dừng Camera
+        </button>
+      </div>
+    </div>
+
+    <!-- Hướng dẫn sử dụng cho người dùng điện thoại -->
+    <div class="instructions-card">
+      <h4>📌 Lưu ý khi sử dụng trên điện thoại:</h4>
+      <ol>
+        <li>Khi trình duyệt hỏi cấp quyền: hãy chọn <strong>"Cho phép" (Allow)</strong> quyền truy cập Camera.</li>
+        <li>Chức năng <strong>Wake Lock</strong> tự động được kích hoạt để giữ màn hình điện thoại luôn sáng khi đang lùi xe.</li>
+        <li>Bạn có thể gắn điện thoại lên giá đỡ ở đuôi xe hoặc kính sau ô tô để có góc nhìn toàn cảnh rộng nhất.</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="/js/camera.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Hỗ Trợ Lùi Xe An Toàn</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <style>
+    .hub-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      align-items: center;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(135deg, #2979ff, #00e676);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 15px;
+      max-width: 580px;
+      line-height: 1.6;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+    .choice-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .choice-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(41, 121, 255, 0.2);
+    }
+    .choice-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(41, 121, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: 1px solid rgba(41, 121, 255, 0.3);
+    }
+    .choice-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .choice-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .guide-box {
+      background: rgba(20, 27, 40, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+    .guide-box h3 {
+      color: #fff;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .guide-box ol {
+      padding-left: 22px;
+    }
+    .guide-box li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hub-container">
+    <div style="font-size: 48px;">🚗💨</div>
+    <h1 class="hero-title">HỆ THỐNG HỖ TRỢ LÙI XE AN TOÀN</h1>
+    <p class="hero-subtitle">
+      Kết hợp hình ảnh Camera phía sau ô tô từ Điện thoại (WebRTC) và Cảm biến siêu âm Arduino đo khoảng cách vật cản (Web Serial API).
+    </p>
+
+    <div class="card-grid">
+      <!-- Lựa chọn 1: Cho Laptop -->
+      <a href="/monitor.html" class="choice-card">
+        <div class="choice-icon">💻</div>
+        <div class="choice-title">MÀN HÌNH LAPTOP</div>
+        <div class="choice-desc">
+          Đóng vai trò là màn hình taplo trong xe: Nhận video từ điện thoại, đọc cổng COM Arduino, hiển thị vạch lùi xe và phát cảnh báo âm thanh.
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: auto;">Mở Màn Hình Lùi &rarr;</button>
+      </a>
+
+      <!-- Lựa chọn 2: Cho Điện thoại -->
+      <a href="/camera.html" class="choice-card">
+        <div class="choice-icon">📱</div>
+        <div class="choice-title">CAMERA ĐIỆN THOẠI</div>
+        <div class="choice-desc">
+          Gắn ở đuôi xe ô tô: Sử dụng camera sau để phát video trực tiếp thời gian thực sang Laptop qua mạng Wi-Fi nội bộ.
+        </div>
+        <button class="btn btn-success" style="width: 100%; margin-top: auto;">Mở Camera Sau &rarr;</button>
+      </a>
+    </div>
+
+    <div class="guide-box">
+      <h3>🚀 Hướng dẫn nhanh:</h3>
+      <ol>
+        <li>Cả <strong>Laptop</strong> và <strong>Điện thoại</strong> phải bắt chung một mạng Wi-Fi (hoặc điện thoại bắt điểm phát sóng hotspot từ laptop).</li>
+        <li>Trên <strong>Điện thoại</strong>: Mở trình duyệt truy cập địa chỉ IP của Laptop dạng <code>https://&lt;IP-LAN&gt;:3443/camera.html</code> rồi bấm <em>"Bật Camera Sau"</em>.</li>
+        <li>Trên <strong>Laptop</strong>: Mở <code>/monitor.html</code>, bấm <em>"Kết nối Arduino"</em> (chọn cổng COM) hoặc bấm <em>"Bật Demo"</em> để kiểm tra trước.</li>
+      </ol>
+    </div>
+  </div>
+
+</body>
+</html>
+

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Màn Hình Lùi Xe - Car Reverse Monitor</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/monitor.css">
+  <style>
+    /* Modal chung */
+    .app-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .app-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: #141c28;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 90%;
+      max-width: 580px;
+      max-height: 85vh;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Bảng hiển thị SQL History */
+    .sql-table-wrap {
+      overflow-y: auto;
+      max-height: 350px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #090e15;
+    }
+    .sql-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .sql-table th {
+      background: #141f2e;
+      color: #8b9bb4;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+    }
+    .sql-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #16202c;
+      color: #fff;
+    }
+    .sql-table tr:hover {
+      background: rgba(41, 121, 255, 0.08);
+    }
+
+    /* Dropdown nguồn camera & Baudrate */
+    .source-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 22, 33, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 4px 10px;
+    }
+    .source-select-wrap select {
+      background: transparent;
+      color: #fff;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .source-select-wrap select option {
+      background: #141c28;
+      color: #fff;
+    }
+
+    .rx-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #555;
+      display: inline-block;
+      transition: background 0.05s ease;
+    }
+    .rx-dot.rx-active {
+      background: #00e676;
+      box-shadow: 0 0 8px #00e676;
+    }
+    .raw-serial-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #00e676;
+      background: #090e15;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #1c2738;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+
+    .serial-terminal-wrap {
+      background: rgba(8, 12, 18, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #7ee787;
+      max-height: 80px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .manual-slider-dock {
+      position: absolute;
+      top: 110px;
+      right: 20px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 25;
+      min-width: 250px;
+    }
+    .manual-slider-dock.visible {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="monitor-viewport">
+    <div class="car-screen-container">
+      <!-- 1. Video nhận từ Iriun Webcam -->
+      <video id="remoteVideo" autoplay playsinline></video>
+
+      <!-- 2. Canvas vẽ vạch hỗ trợ lùi xe ô tô 3D -->
+      <canvas id="overlayCanvas"></canvas>
+
+      <!-- 3. Viền cảnh báo đỏ nhấp nháy khẩn cấp (Level 2 - Dừng lại) -->
+      <div id="dangerFlashBorder" class="danger-flash-border"></div>
+
+      <!-- 4. Màn hình chờ khi chưa kết nối Camera -->
+      <div id="videoPlaceholder" class="video-placeholder">
+        <div class="camera-spinner"></div>
+        <div style="font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">MÀN HÌNH LÙI SẴN SÀNG</div>
+        <div style="font-size: 14px; color: var(--text-muted); text-align: center; max-width: 480px; line-height: 1.6;">
+          Hãy mở app <strong>Iriun Webcam</strong> trên điện thoại và laptop, sau đó bấm nút bên dưới:
+        </div>
+        <button id="btnConnectIriunPlaceholder" class="btn btn-primary" style="padding: 12px 24px; font-size: 15px; margin-top: 8px;">
+          <span>🎥</span> Bật Iriun Webcam Lên Web
+        </button>
+      </div>
+
+      <!-- 5. HUD Góc Trên Bên Trái: Thông số hệ thống & WIDGET RADAR Ô TÔ -->
+      <div class="hud-top-left">
+        <div class="hud-panel">
+          <div class="system-title">
+            <span>🛡️</span> HỆ THỐNG LÙI XE AN TOÀN
+          </div>
+          <div class="stat-item">
+            <span>Nguồn Camera:</span>
+            <span class="val" id="camStatusText" style="color: #ff9100;">Đang chờ...</span>
+          </div>
+          <div class="stat-item">
+            <span>
+              <span id="rxIndicator" class="rx-dot" title="Đèn tín hiệu nhận dữ liệu thật từ Arduino"></span>
+              Cảm biến HC-SR04:
+            </span>
+            <span class="val" id="arduinoStatusText">Chưa kết nối</span>
+          </div>
+          <div class="stat-item">
+            <span>Khung hình camera:</span>
+            <span class="val" id="fpsText">-- FPS</span>
+          </div>
+
+          <div class="raw-serial-badge" id="rawSerialText" title="Dòng nhận trực tiếp từ Serial">RAW: --</div>
+          <div class="serial-terminal-wrap" id="serialConsoleBox">Sẵn sàng kết nối Serial...</div>
+        </div>
+
+        <!-- WIDGET RADAR SÓNG CẢM BIẾN LÙI (3 VÙNG: XANH - VÀNG - ĐỎ) -->
+        <div class="car-radar-widget">
+          <div class="radar-title">CẢM BIẾN CẢN SAU</div>
+          <div class="car-silhouette-wrap">
+            <div class="car-body">
+              <div class="car-windshield"></div>
+              <div class="car-rear-window"></div>
+            </div>
+            <div class="sonar-arcs-container">
+              <div id="sonarArc4" class="sonar-arc sonar-arc-4" title="Sát cản sau (< 15cm)"></div>
+              <div id="sonarArc3" class="sonar-arc sonar-arc-3" title="Nguy hiểm (< 15cm)"></div>
+              <div id="sonarArc2" class="sonar-arc sonar-arc-2" title="Cảnh báo (15 - 30cm)"></div>
+              <div id="sonarArc1" class="sonar-arc sonar-arc-1" title="An toàn (> 30cm)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. HUD Góc Trên Bên Phải: KHOẢNG CÁCH CẢM BIẾN THẬT (SIÊU TO RÕ) -->
+      <div class="hud-top-right">
+        <div class="distance-card">
+          <div class="distance-label">KHOẢNG CÁCH CẢM BIẾN THẬT</div>
+          <div class="distance-number-wrap">
+            <span id="distanceValue" class="distance-number">---</span>
+            <span class="distance-unit">cm</span>
+          </div>
+          
+          <div class="distance-bar-wrapper">
+            <div id="distanceBarFill" class="distance-bar-fill"></div>
+          </div>
+
+          <div id="statusBadge" class="status-badge-lg badge-safe">
+            AN TOÀN
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Banner Cảnh Báo Khẩn Cấp Ở Giữa Màn Hình (Level 2 - DỪNG LẠI!) -->
+      <div id="hudCenterAlert" class="hud-center-alert">
+        <div class="alert-stop-banner">
+          ⚠️ NGUY HIỂM - DỪNG LẠI! ⚠️
+        </div>
+      </div>
+
+      <!-- 8. Thanh Công Cụ Nổi Phía Dưới (Control Dock) -->
+      <div class="control-dock">
+        <!-- Nút bật nhanh Iriun Webcam -->
+        <button id="btnConnectIriun" class="btn btn-success" title="Mở luồng video từ Iriun Webcam lên màn hình web">
+          <span>🎥</span> Bật Iriun Webcam
+        </button>
+
+        <div class="source-select-wrap">
+          <span>📷</span>
+          <select id="cameraSourceSelect" title="Chọn thiết bị camera trên máy"></select>
+        </div>
+
+        <div class="source-select-wrap" title="Chọn tốc độ baud khớp với Arduino">
+          <span>⚡</span>
+          <select id="serialBaudSelect">
+            <option value="115200" selected>115200 baud</option>
+            <option value="9600">9600 baud</option>
+          </select>
+        </div>
+
+        <!-- Nút kết nối Arduino cảm biến siêu âm THẬT -->
+        <button id="btnConnectSerial" class="btn btn-primary" title="Mở cổng COM kết nối với Arduino Uno thật">
+          <span>🔌</span> Kết nối Arduino Thật
+        </button>
+        <button id="btnDisconnectSerial" class="btn btn-danger" style="display: none;" title="Ngắt kết nối cổng COM Arduino">
+          <span>⏏️</span> Ngắt Arduino
+        </button>
+
+        <!-- Nút Xem Lịch Sử Database SQL -->
+        <button id="btnOpenSqlModal" class="btn btn-secondary" title="Xem lịch sử đo lưu trong Cơ sở dữ liệu SQL Server">
+          <span>💾</span> Lịch Sử SQL
+        </button>
+
+        <!-- Nút Bật/Tắt âm thanh -->
+        <button id="btnToggleAudio" class="btn btn-primary" title="Bật/Tắt tiếng còi bíp trên laptop">
+          <span>🔊</span> Âm thanh
+        </button>
+
+        <!-- Nút Lật gương chiếu hậu -->
+        <button id="btnToggleMirror" class="btn btn-secondary" title="Đảo chiều video như nhìn vào gương chiếu hậu">
+          <span>🪞</span> Lật gương
+        </button>
+
+        <!-- Nút Toàn màn hình -->
+        <button id="btnFullscreen" class="btn btn-secondary" title="Xem toàn màn hình">
+          <span>⛶</span>
+        </button>
+      </div>
+
+      <!-- Toast thông báo -->
+      <div id="toastMsg" class="toast-msg"></div>
+
+      <!-- Popup Modal Xem Lịch Sử Database SQL (SSMS) -->
+      <div id="sqlModal" class="app-modal">
+        <div class="modal-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 18px; color: #fff;">💾 LỊCH SỬ LÙI XE (SQL DATABASE)</h3>
+            <span id="sqlSourceBadge" class="badge badge-safe">Đang tải...</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            Dữ liệu cảm biến được tự động ghi vào bảng <strong>ParkingLogs</strong>:
+          </p>
+
+          <div class="sql-table-wrap">
+            <table class="sql-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Thời Gian</th>
+                  <th>Khoảng Cách</th>
+                  <th>Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="sqlTableBody">
+                <tr><td colspan="4" style="text-align: center; color: #8b9bb4;">Chưa có dữ liệu nào...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <button id="btnRefreshSql" class="btn btn-secondary" style="flex: 1;">🔄 Làm mới</button>
+            <button id="btnClearSql" class="btn btn-danger" style="flex: 1;">🗑️ Xóa lịch sử</button>
+            <button id="btnCloseSql" class="btn btn-primary" style="flex: 1;">Đóng</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/audio-buzzer.js?v=2.2"></script>
+  <script src="/js/parking-canvas.js?v=2.2"></script>
+  <script src="/js/monitor.js?v=2.2"></script>
+  <script>
+    // Logic Popup Modal Xem Lịch Sử SQL
+    const sqlModal = document.getElementById('sqlModal');
+    const btnOpenSqlModal = document.getElementById('btnOpenSqlModal');
+    const btnCloseSql = document.getElementById('btnCloseSql');
+    const btnRefreshSql = document.getElementById('btnRefreshSql');
+    const btnClearSql = document.getElementById('btnClearSql');
+    const sqlTableBody = document.getElementById('sqlTableBody');
+    const sqlSourceBadge = document.getElementById('sqlSourceBadge');
+
+    async function loadSqlHistory() {
+      try {
+        const res = await fetch('/api/logs');
+        const data = await res.json();
+        
+        sqlSourceBadge.textContent = data.logs.length > 0 ? 'SQL Server Online' : 'Sẵn sàng';
+        
+        if (!data.logs || data.logs.length === 0) {
+          sqlTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #8b9bb4; padding: 20px;">Chưa có bản ghi nào trong Database.</td></tr>';
+          return;
+        }
+
+        sqlTableBody.innerHTML = data.logs.map(log => {
+          let badgeClass = 'badge-safe';
+          if (log.level === 1) badgeClass = 'badge-warning';
+          else if (log.level >= 2) badgeClass = 'badge-stop';
+
+          return `
+            <tr>
+              <td>${log.id}</td>
+              <td style="font-family: monospace; font-size: 12px;">${log.created_at}</td>
+              <td style="font-weight: bold; font-family: monospace;">${log.distance} cm</td>
+              <td><span class="badge ${badgeClass}" style="padding: 2px 8px; font-size: 11px;">${log.status_text}</span></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        sqlTableBody.innerHTML = '<tr><td colspan="4" style="color: #ff1744; text-align: center;">Lỗi tải dữ liệu SQL!</td></tr>';
+      }
+    }
+
+    btnOpenSqlModal.addEventListener('click', () => {
+      loadSqlHistory();
+      sqlModal.classList.add('active');
+    });
+
+    btnCloseSql.addEventListener('click', () => sqlModal.classList.remove('active'));
+    btnRefreshSql.addEventListener('click', loadSqlHistory);
+
+    btnClearSql.addEventListener('click', async () => {
+      if (confirm('Bạn có chắc muốn xóa toàn bộ lịch sử trong SQL Database không?')) {
+        await fetch('/api/logs', { method: 'DELETE' });
+        loadSqlHistory();
+      }
+    });
+
+    sqlModal.addEventListener('click', (e) => {
+      if (e.target === sqlModal) sqlModal.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
