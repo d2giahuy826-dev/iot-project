@@ -371,21 +371,29 @@ const FB={url:'',on:false,last:0,n:0};
 const fbSet=(st,cls,info)=>{$('fbStat').textContent=st;$('fbDot').className='dot'+(cls?' '+cls:'');$('fbInfo').textContent=info||''};
 const fbEp=p=>FB.url+'/parkguard/'+p+'.json';
 const keyE=l=>l.s+'_'+l.t,keyS=x=>x.id+'_'+x.start;
-async function fbReq(p,method,body){
-  const r=await fetch(fbEp(p),{method,body:body===undefined?undefined:JSON.stringify(body)});
+async function fbReq(p,method,body,q){
+  const r=await fetch(fbEp(p)+(q||''),{method,body:body===undefined?undefined:JSON.stringify(body)});
   if(!r.ok)throw new Error(r.status===401||r.status===403?'Firebase từ chối (kiểm tra Rules)':'Lỗi '+r.status);
   return r.json();
 }
 function fbErr(e){fbSet('Lỗi lưu cloud','err',(e&&e.message)||'Không có mạng');}
 function fbSave(){try{localStorage.setItem('pg_fb',JSON.stringify({u:FB.url,a:$('fbAuto').checked,r:$('fbRead').checked}))}catch(e){}}
-function dec(kind,o){
-  if(kind==='events')return {...o,time:fT(o.t),levelVi:UI[o.lv]?UI[o.lv][0]:o.lv,durationSec:+(o.dur/1000).toFixed(1),minDistanceCm:o.min};
-  if(kind==='sessions')return {...o,startTime:fT(o.start),endTime:fT(o.end),durationSec:Math.round((o.end-o.start)/1000),dangerCount:o.d,warnCount:o.w,minDistanceCm:o.min,verdict:verdict(o.d,o.w)[0]};
-  return o;
-}
+const WD=['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'];
+const p2=(n,l=2)=>String(n).padStart(l,'0');
+const fTD=t=>{const d=new Date(t);return `${WD[d.getDay()]} ${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}.${p2(d.getMilliseconds(),3)}`};
+const tKey=t=>{const d=new Date(t);return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}_${p2(d.getHours())}-${p2(d.getMinutes())}-${p2(d.getSeconds())}-${p2(d.getMilliseconds(),3)}`};
+const evKey=o=>tKey(o.t)+'_p'+o.s,seKey=o=>tKey(o.start)+'_p'+o.id;
+const evLine=o=>`${fTD(o.t)} | ${UI[o.lv]?UI[o.lv][0]:o.lv} | gần nhất ${o.min} cm | kéo dài ${(o.dur/1000).toFixed(1)} s | phiên ${o.s}`;
+const seLine=o=>`phiên #${o.id} | ${fTD(o.start)} | ${fTD(o.end)} | ${Math.round((o.end-o.start)/1000)} s | nguy hiểm ${o.d} | cảnh báo ${o.w} | gần nhất ${o.min===null?'---':o.min+' cm'} | ${verdict(o.d,o.w)[0]}`;
+const keyT=k=>{const m=/^(\d{4})-(\d\d)-(\d\d)_(\d\d)-(\d\d)-(\d\d)-(\d{3})/.exec(k);return m?new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6],+m[7]).getTime():0};
+const keyP=k=>+((/_p(\d+)$/.exec(k)||[0,0])[1]);
+const num=(t,re)=>{const m=re.exec(t||'');return m?parseFloat(m[1]):null};
+const evParse=(k,v)=>{const q=String(v).split(' | ');return{s:keyP(k),t:keyT(k),lv:(q[1]||'').startsWith('Nguy')?'danger':'warn',min:num(q[2],/([\d.]+) cm/),dur:Math.round((num(q[3],/([\d.]+) s/)||0)*1000)}};
+const seParse=(k,v)=>{const q=String(v).split(' | '),st=keyT(k);return{id:keyP(k),start:st,end:st+(num(q[3],/(\d+) s/)||0)*1000,d:num(q[4],/(\d+)/)||0,w:num(q[5],/(\d+)/)||0,min:/cm/.test(q[6]||'')?num(q[6],/([\d.]+)/):null}};
+const dv=(o,f)=>Object.entries(o||{}).map(([k,v])=>typeof v==='object'?v:f(k,v));
 async function cloudPush(kind,obj){
   if(!FB.on||!$('fbAuto').checked||!obj)return;
-  try{await fbReq(kind+'/'+(kind==='events'?keyE(obj):keyS(obj)),'PUT',dec(kind,obj));fbSet('Đã kết nối','on','Vừa lưu '+(kind==='events'?'sự kiện':'phiên')+' lúc '+new Date().toLocaleTimeString('vi-VN'))}catch(e){fbErr(e)}
+  try{await fbReq(kind+'/'+(kind==='events'?evKey(obj):seKey(obj)),'PUT',kind==='events'?evLine(obj):seLine(obj));fbSet('Đã kết nối','on','Vừa lưu '+(kind==='events'?'sự kiện':'phiên')+' lúc '+new Date().toLocaleTimeString('vi-VN'))}catch(e){fbErr(e)}
 }
 async function cloudReading(d,z){
   if(!FB.on||!session||!$('fbAuto').checked||!$('fbRead').checked||d>250)return;
@@ -393,7 +401,7 @@ async function cloudReading(d,z){
   const t=Date.now();
   if(!(FB.ld===null||z!==FB.lz||Math.abs(d-FB.ld)>=5)||t-FB.last<500)return;
   FB.last=t;FB.ld=d;FB.lz=z;
-  try{await fbReq('readings/'+t,'PUT',{distance:d,level:z,levelVi:UI[z][0],time:fT(t),ts:t,session:session.id});FB.n++;fbSet('Đã kết nối','on','Đã lưu '+FB.n+' lần đọc trong lần mở trang này')}catch(e){fbErr(e)}
+  try{await fbReq('readings/'+tKey(t),'PUT',`${d} cm | ${UI[z][0]} | phiên ${session.id} | ${fTD(t)}`);FB.n++;fbSet('Đã kết nối','on','Đã lưu '+FB.n+' lần đọc trong lần mở trang này')}catch(e){fbErr(e)}
 }
 async function fbConnect(quiet){
   let u=$('fbUrl').value.trim().replace(/\/+$/,'');
@@ -401,7 +409,7 @@ async function fbConnect(quiet){
   FB.url=u;fbSet('Đang kiểm tra…','','');
   try{
     await fbReq('ping','PUT',{ts:Date.now()});fbReq('ping','DELETE').catch(()=>{});
-    FB.on=true;fbSave();fbSet('Đã kết nối','on','Ghi thử thành công');
+    FB.on=true;fbSave();fbSet('Đã kết nối','on','Ghi thử thành công');cloudView();
   }catch(e){FB.on=false;fbErr(e)}
 }
 $('fbConnect').onclick=()=>fbConnect(false);
@@ -411,7 +419,7 @@ const need=()=>{if(!FB.on){alert('Hãy kết nối Firebase trước.');return f
 $('fbPush').onclick=async()=>{
   if(!need())return;
   try{
-    const e={},s2={};log.forEach(l=>e[keyE(l)]=dec('events',l));sessions.forEach(x=>s2[keyS(x)]=dec('sessions',x));
+    const e={},s2={};log.forEach(l=>e[evKey(l)]=evLine(l));sessions.forEach(x=>s2[seKey(x)]=seLine(x));
     await fbReq('events','PATCH',e);await fbReq('sessions','PATCH',s2);
     fbSet('Đã kết nối','on','Đã đẩy '+log.length+' sự kiện và '+sessions.length+' phiên');
   }catch(e){fbErr(e)}
@@ -421,7 +429,7 @@ $('fbPull').onclick=async()=>{
   try{
     const [e,s2]=await Promise.all([fbReq('events','GET'),fbReq('sessions','GET')]);
     const em=new Map(log.map(l=>[keyE(l),l])),sm=new Map(sessions.map(x=>[keyS(x),x]));
-    Object.values(e||{}).forEach(l=>em.set(keyE(l),l));Object.values(s2||{}).forEach(x=>sm.set(keyS(x),x));
+    dv(e,evParse).forEach(l=>em.set(keyE(l),l));dv(s2,seParse).forEach(x=>sm.set(keyS(x),x));
     log=[...em.values()].sort((a,b)=>b.t-a.t);sessions=[...sm.values()].sort((a,b)=>b.start-a.start);
     sessionCount=Math.max(sessionCount,0,...sessions.map(x=>x.id));
     save();renderLog();renderSessions();
@@ -432,6 +440,36 @@ $('fbWipe').onclick=async()=>{
   if(!need()||!confirm('Xóa TOÀN BỘ dữ liệu ParkGuard trên Firebase? (Dữ liệu trên trình duyệt không bị xóa)'))return;
   try{await fbReq('','DELETE');FB.n=0;fbSet('Đã kết nối','on','Đã xóa dữ liệu trên cloud')}catch(e){fbErr(e)}
 };
+/* ===== Xem lịch sử từ Firebase dạng bảng ngang ===== */
+const CV={readings:['Thời gian','Khoảng cách','Mức độ','Phiên'],events:['Thời gian','Mức độ','Gần nhất','Kéo dài','Phiên'],sessions:['Phiên','Bắt đầu','Kết thúc','Thời lượng','Nguy hiểm','Cảnh báo','Gần nhất','Đánh giá']};
+async function cloudView(){
+  const m=$('cvMsg');
+  if(!FB.on){m.textContent='Hãy kết nối Firebase trước.';return}
+  const k=$('cvSel').value;m.textContent='Đang tải…';
+  try{
+    const data=(await fbReq(k,'GET',undefined,k==='readings'?'?orderBy=%22%24key%22&limitToLast=200':''))||{};
+    let rows=[];
+    if(k==='readings')rows=Object.entries(data).sort((a,b)=>a[0]<b[0]?1:-1).map(([key,v])=>{
+      if(typeof v==='object')return[fT(v.ts),v.distance+' cm',v.levelVi||v.level,'phiên '+v.session];
+      const q=String(v).split(' | ');return[q[3]||key,q[0]||'',q[1]||'',q[2]||''];
+    });
+    else{
+      const ent=Object.entries(data).map(([key,v])=>({v,t:typeof v==='object'?(v.t||v.start||0):keyT(key)})).sort((x,y)=>y.t-x.t);
+      rows=ent.map(({v})=>{
+        if(typeof v==='string')return v.split(' | ');
+        return k==='events'?[v.time||fT(v.t),v.levelVi||v.lv,v.min+' cm',(v.durationSec??(v.dur/1000).toFixed(1))+' s','phiên '+v.s]
+          :['phiên #'+v.id,v.startTime||fT(v.start),v.endTime||fT(v.end),(v.durationSec??Math.round((v.end-v.start)/1000))+' s','nguy hiểm '+v.d,'cảnh báo '+v.w,v.min===null?'---':v.min+' cm',v.verdict||verdict(v.d,v.w)[0]];
+      });
+    }
+    const tr=document.createElement('tr');CV[k].forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.appendChild(th)});
+    $('cvHead').replaceChildren(tr);
+    $('cvBody').replaceChildren(...rows.slice(0,200).map(r=>{const t=document.createElement('tr');r.forEach(c=>{const td=document.createElement('td');td.textContent=c;t.appendChild(td)});return t}));
+    $('cvEmpty').style.display=rows.length?'none':'block';
+    m.textContent=rows.length?`${rows.length} dòng (mới nhất ở trên) · cập nhật ${new Date().toLocaleTimeString('vi-VN')}`:'';
+  }catch(e){m.textContent='Lỗi: '+((e&&e.message)||'không tải được')}
+}
+$('cvSel').onchange=$('cvReload').onclick=cloudView;
+setInterval(()=>{if(FB.on&&$('cvAuto').checked)cloudView()},10000);
 try{const f=JSON.parse(localStorage.getItem('pg_fb'));if(f){$('fbUrl').value=f.u||'';$('fbAuto').checked=f.a!==false;$('fbRead').checked=f.r!==false;if(f.u)fbConnect(true)}}catch(e){}
 if(!$('fbUrl').value&&window.PG_CONFIG&&PG_CONFIG.firebaseUrl){$('fbUrl').value=PG_CONFIG.firebaseUrl;fbConnect(true)}
 if(!storeOK)$('storeWarn').style.display='block';
