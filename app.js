@@ -368,7 +368,7 @@ $('rdCsv').onclick=()=>{
 $('rdClear').onclick=()=>{if(!confirm('Xóa toàn bộ lịch sử các lần đọc cảm biến?'))return;rd=[];rdDirty=true;rdFlush();rdRender()};
 /* ===== Lưu trữ Firebase Realtime Database (REST, không cần SDK) ===== */
 const FB={url:'',on:false,last:0,n:0};
-const fbSet=(st,cls,info)=>{$('fbStat').textContent=st;$('fbDot').className='dot'+(cls?' '+cls:'');$('fbInfo').textContent=info||''};
+const fbSet=(st,cls,info)=>{$('fbStat').textContent=st;$('fbDot').className='dot'+(cls?' '+cls:'');$('fbInfo').textContent=info||'';$('fbMini').textContent=st+(info?' · '+info:'');$('fbMiniDot').className='dot'+(cls?' '+cls:'')};
 const fbEp=p=>FB.url+'/parkguard/'+p+'.json';
 const keyE=l=>l.s+'_'+l.t,keyS=x=>x.id+'_'+x.start;
 async function fbReq(p,method,body,q){
@@ -444,7 +444,7 @@ $('fbWipe').onclick=async()=>{
 const CV={readings:['Thời gian','Khoảng cách','Mức độ','Phiên'],events:['Thời gian','Mức độ','Gần nhất','Kéo dài','Phiên'],sessions:['Phiên','Bắt đầu','Kết thúc','Thời lượng','Nguy hiểm','Cảnh báo','Gần nhất','Đánh giá']};
 async function cloudView(){
   const m=$('cvMsg');
-  if(!FB.on){m.textContent='Hãy kết nối Firebase trước.';return}
+  if(!FB.on){m.textContent='Chưa kết nối Firebase. Kiểm tra firebaseUrl trong config.js.';return}
   const k=$('cvSel').value;m.textContent='Đang tải…';
   try{
     const data=(await fbReq(k,'GET',undefined,k==='readings'?'?orderBy=%22%24key%22&limitToLast=200':''))||{};

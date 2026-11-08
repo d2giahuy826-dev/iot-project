@@ -14,7 +14,7 @@
     <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#1d6fb8"/><rect x="11" y="9" width="12" height="17" rx="4" fill="#fff"/><path d="M7 7a14 14 0 0 1 20 0M10 4a9 9 0 0 1 14 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/></svg>
     <b>ParkGuard</b><span>Nhật ký đỗ xe an toàn</span>
   </div>
-  <nav><a href="#giamsat">Giám sát</a><a href="#thongke">Thống kê</a><a href="#nhatky">Nhật ký</a><a href="#lichsu">Lịch sử đo</a><a href="#luutru">Lưu trữ</a><a href="#duan">Về dự án</a></nav>
+  <nav><a href="#giamsat">Giám sát</a><a href="#thongke">Thống kê</a><a href="#nhatky">Nhật ký</a><a href="#lichsu">Lịch sử đo</a><a href="#duan">Về dự án</a></nav>
 </div></header>
 
 <main>
@@ -159,7 +159,15 @@
   </div>
 </section>
 
-<section id="luutru" class="cloud">
+<section id="cloudlog" class="logbox">
+  <div class="loghead">
+    <div><h2>Lịch sử trên Firebase</h2><div class="sub" style="margin:0" id="cvMsg">Dữ liệu đã lưu trên Firebase.</div><div class="sub" style="margin:6px 0 0"><span class="dot" id="fbMiniDot"></span><span id="fbMini">Chưa kết nối Firebase</span></div></div>
+    <div class="row"><select id="cvSel" class="btn" aria-label="Loại dữ liệu"><option value="readings">Các lần đọc</option><option value="events">Sự kiện</option><option value="sessions">Phiên đỗ xe</option></select><button class="btn" id="cvReload">Tải lại</button><label class="chk"><input type="checkbox" id="cvAuto" checked> Tự làm mới (10 giây)</label></div>
+  </div>
+  <div class="tablewrap"><table><thead id="cvHead"></thead><tbody id="cvBody"></tbody></table><div class="empty" id="cvEmpty" style="display:none">Chưa có dữ liệu trên cloud.</div></div>
+</section>
+
+<section id="luutru" class="cloud" hidden>
   <h2>Lưu trữ dữ liệu (Firebase)</h2>
   <p class="sub">Nhật ký, phiên đỗ xe và các lần đọc cảm biến được lưu lên Firebase Realtime Database để không mất khi đóng trang và xem được từ máy khác. Dữ liệu vẫn được lưu trên trình duyệt như cũ.</p>
   <div><span class="dot" id="fbDot"></span><b id="fbStat">Chưa kết nối</b> <span class="sub" id="fbInfo" style="margin:0 0 0 8px"></span></div>
