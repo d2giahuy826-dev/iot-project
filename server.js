@@ -15,6 +15,7 @@ const { WebSocketServer, WebSocket } = require('ws');
 const selfsigned = require('selfsigned');
 const QRCode = require('qrcode');
 const db = require('./database');
+const firebaseService = require('./firebase-service');
 
 const PORT = process.env.PORT || 3443;
 const CERTS_DIR = path.join(__dirname, 'certs');
@@ -135,6 +136,36 @@ app.delete('/api/logs', (req, res) => {
   try {
     db.clearLogs();
     res.json({ success: true, message: 'Đã xóa toàn bộ lịch sử SQL' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cấu hình Google Firebase Realtime Database
+const FIREBASE_CONFIG_PATH = path.join(__dirname, 'firebase-config.json');
+
+app.get('/api/firebase-config', (req, res) => {
+  let cfg = { enabled: false, databaseURL: '' };
+  if (fs.existsSync(FIREBASE_CONFIG_PATH)) {
+    try {
+      cfg = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_PATH, 'utf8'));
+    } catch (e) {}
+  }
+  res.json({ success: true, config: cfg });
+});
+
+app.post('/api/firebase-config', (req, res) => {
+  const { databaseURL, enabled } = req.body;
+  const newConfig = {
+    enabled: enabled !== false,
+    databaseURL: (databaseURL || '').trim()
+  };
+
+  try {
+    fs.writeFileSync(FIREBASE_CONFIG_PATH, JSON.stringify(newConfig, null, 2), 'utf8');
+    firebaseService.loadConfig();
+    console.log('[Firebase] ✅ Đã cập nhật cấu hình Firebase:', newConfig.databaseURL);
+    res.json({ success: true, config: newConfig });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

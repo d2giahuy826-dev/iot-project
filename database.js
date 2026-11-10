@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const sql = require('mssql');
 const { DatabaseSync } = require('node:sqlite');
+const firebaseService = require('./firebase-service');
 
 const CONFIG_PATH = path.join(__dirname, 'sql-config.json');
 let sqlConfig = {
@@ -118,7 +119,13 @@ async function insertLog(distance, level) {
   if (lvl === 1) statusText = 'CẢNH BÁO';
   else if (lvl >= 2) statusText = 'NGUY HIỂM';
 
-  // 1. Lưu vào Microsoft SQL Server nếu đã kết nối
+  // 1. Đồng bộ lên Google Firebase Realtime Database (Cloud 24/7)
+  try {
+    firebaseService.pushEventLog(dist, lvl, statusText);
+    firebaseService.updateLiveStatus(dist, lvl, statusText);
+  } catch (err) {}
+
+  // 2. Lưu vào Microsoft SQL Server nếu đã kết nối
   if (isMSSQLConnected && mssqlPool) {
     try {
       // Chèn bản ghi sự kiện có ý nghĩa
@@ -142,7 +149,7 @@ async function insertLog(distance, level) {
     }
   }
 
-  // 2. Lưu vào SQLite dự phòng (cũng tự giới hạn 500 bản ghi)
+  // 3. Lưu vào SQLite dự phòng (cũng tự giới hạn 500 bản ghi)
   try {
     const insert = sqliteDb.prepare(`
       INSERT INTO parking_logs (distance, level, status_text)

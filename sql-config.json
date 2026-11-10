@@ -3,7 +3,7 @@
   "server": "localhost",
   "database": "CarReverseDB",
   "user": "sa",
-  "password": "123giahuy",
+  "password": "123",
   "port": 1433,
   "options": {
     "encrypt": false,
